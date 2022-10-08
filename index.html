@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css" integrity="sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X" crossorigin="anonymous">
+
+    <!-- The loading of KaTeX is deferred to speed up page rendering -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js" integrity="sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div>
+      <h1>Calculas</h1>
+      <input id="user-input" placeholder="Números separados por ," onkeyup="updateValues(this.value)" />
+      <hr />
+      <div class="flex">
+        <h2>Média</h2>
+        <div id="mean"></div>
+      </div>
+      <hr />
+      <div class="flex">
+        <h2>Mediana</h2>
+        <div id="mediana"></div>
+      </div>
+      <hr />
+      <div class="flex">
+        <h2>Moda</h2>
+        <div id="moda"></div>
+      </div>
+      <hr />
+      <div class="flex">
+        <h2>Variância</h2>
+        <div id="variance"></div>
+      </div>
+      <hr />
+      <div class="flex">
+        <h2>Desvio Padrão</h2>
+        <div id="stdev"></div>
+      </div>
+      <hr />
+      <div class="flex">
+        <h2>Desvio Médio</h2>
+        <div id="avgdev"></div>
+      </div>
+    </div>
+    <script type="module" src="/main.js"></script>
+    <script>
+      function parseInput(input) {
+        const splitted = input.split(',').map(n => n.trim());
+        return splitted.map(n => parseInt(n, 10));
+      }
+
+      function updateValues(input) {
+        const numbers = parseInput(input);
+
+        // Media
+        const mean = (numbers.reduce((n, acc) => n + acc) / numbers.length).toFixed(2);
+        const meanLatex = `\\frac{${numbers.join('+')}}{${numbers.length}} = ${mean}`;
+
+        const board = document.querySelector('#mean')
+        katex.render(meanLatex, board);
+
+        const meanElement = document.querySelector('#mean')
+        katex.render(meanLatex, meanElement);
+
+        // Mediana
+        let medianaLatex;
+        const middle = Math.floor(numbers.length / 2)
+        if (numbers.length % 2 == 0) {
+          const result = (numbers[middle-1] + numbers[middle]) / 2;
+          medianaLatex = `\\frac{${numbers[middle-1]} + ${numbers[middle]}}{2} = ${result}`;
+        } else {
+          medianaLatex = `${numbers[middle]}`;
+        }
+
+        const medianaElement = document.querySelector('#mediana');
+        katex.render(medianaLatex, medianaElement);
+
+        // Moda
+        const mostFrequent = getMostFrequent(numbers);
+        const modaElement = document.querySelector('#moda');
+        katex.render(mostFrequent, modaElement);
+
+        // Variance
+        const subtracted = numbers.map(n => n - mean);
+        const result = (subtracted
+          .map(n => Math.pow(n, 2))
+          .reduce((elem, acc) => acc + elem) / numbers.length).toFixed(2);
+
+        const subtractedSquared = subtracted.map(n => `${n} ^ 2`);
+        const varianceLatex = `\\frac{${subtractedSquared.join('+')}}{${numbers.length}} = ${result}`
+
+        const varianceElement = document.querySelector('#variance');
+        katex.render(varianceLatex, varianceElement);
+
+        // Average Deviation
+        const avgResult = (subtracted
+          .map(Math.abs)
+          .reduce((elem, acc) => acc + elem) / numbers.length).toFixed(2);
+        const avgdevElement = document.querySelector('#avgdev');
+        const subtractedAbsolute = subtracted.map(n => `|${n}|`);
+        const avgdevLatex = `\\frac{${subtractedAbsolute.join('+')}}{${numbers.length}} = ${avgResult}`;
+        katex.render(avgdevLatex, avgdevElement);
+
+        // Standard Deviation
+        const stdevElement = document.querySelector('#stdev');
+        katex.render(`\\sqrt{${result}} = ${Math.sqrt(result).toFixed(2)}`, stdevElement);
+      }
+
+      function getMostFrequent(numbers) {
+        let frequencies = {}
+        for (let n of numbers) {
+          if (frequencies[n] == undefined) {
+            frequencies[n] = 1;
+          } else {
+            frequencies[n]++;
+          }
+        }
+
+        const sortable = Object.entries(frequencies)
+          .sort(([,a],[,b]) => b - a)
+
+        return sortable[0][0];
+      }
+    </script>
+  </body>
+</html>
