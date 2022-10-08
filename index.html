@@ -84,7 +84,7 @@
         katex.render(mostFrequent, modaElement);
 
         // Variance
-        const subtracted = numbers.map(n => n - mean);
+        const subtracted = numbers.map(n => (n - mean).toFixed(2));
         const result = (subtracted
           .map(n => Math.pow(n, 2))
           .reduce((elem, acc) => acc + elem) / numbers.length).toFixed(2);
